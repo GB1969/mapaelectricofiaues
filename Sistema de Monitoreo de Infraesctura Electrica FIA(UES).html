@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="./resources/ol.css">
+        <link rel="stylesheet" href="resources/fontawesome-all.min.css">
+        <link href="resources/photon-geocoder-autocomplete.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="./resources/ol-layerswitcher.css">
+        <link rel="stylesheet" href="./resources/qgis2web.css">
+        <style>
+        html, body {
+            background-color: #ffffff;
+        }
+        .ol-control > * {
+            background-color: #f8f8f8!important;
+            color: #444444!important;
+            border-radius: 0px;
+        }
+        .ol-attribution a, .gcd-gl-input::placeholder, .search-layer-input-search::placeholder {
+            color: #444444!important;
+        }
+        .search-layer-input-search {
+            background-color: #f8f8f8!important;
+        }
+        .ol-control > *:focus, .ol-control >*:hover {
+            background-color: rgba(248, 248, 248, 0.7)!important;
+        } 
+        .ol-control {
+            background-color: rgba(255,255,255,.4) !important;
+            padding: 2px !important;
+        } 
+        </style>
+
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+            <div id="popup" class="ol-popup">
+                <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+                <div id="popup-content"></div>
+            </div>
+        </div>
+        <script src="resources/qgis2web_expressions.js"></script>
+        <script src="./resources/functions.js"></script>
+        <script src="./resources/ol.js"></script>
+        <script src="./resources/ol-layerswitcher.js"></script>
+        <script src="resources/photon-geocoder-autocomplete.min.js"></script>
+        <script src="resources/olms.js"></script>
+        <script src="layers/POZOSELECTRICOS_2.js"></script><script src="layers/CASETASELECTRICAS_3.js"></script><script src="layers/TRANSFORMADORENSECO_4.js"></script><script src="layers/POSTES_5.js"></script><script src="layers/LUMINARIAS_6.js"></script>
+        <script src="styles/POZOSELECTRICOS_2_style.js"></script><script src="styles/CASETASELECTRICAS_3_style.js"></script><script src="styles/TRANSFORMADORENSECO_4_style.js"></script><script src="styles/POSTES_5_style.js"></script><script src="styles/LUMINARIAS_6_style.js"></script>
+        <script src="./layers/layers.js" type="text/javascript"></script> 
+        <script src="./resources/Autolinker.min.js"></script>
+        <script src="./resources/qgis2web.js"></script>
+
+<style>
+.halo {
+  border-radius: 50%;
+  pointer-events: none;
+  animation: halo 2.4s ease-in-out infinite;
+}
+@keyframes halo {
+  0%, 100% { transform: scale(0.85); opacity: 0.55; }
+  50%      { transform: scale(1.25); opacity: 1; }
+}
+
+/* ===== Widget colapsable (izquierda, debajo del zoom) ===== */
+#luz-widget {
+  position: absolute;
+  top: 90px;              /* el JS lo recoloca debajo del zoom */
+  left: .5em;
+  z-index: 1000;
+  font-family: Arial, sans-serif;
+}
+#luz-icono {
+  display: block;
+  width: 38px; height: 38px;
+  padding: 0;
+  font-size: 20px; line-height: 36px; text-align: center;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  cursor: pointer;
+}
+#luz-icono:hover { background: #e2e8f0; }
+
+#luz-panel {
+  display: none;
+  width: 210px;
+  box-sizing: border-box;
+  padding: 12px;
+  background: rgba(255,255,255,0.96);
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+  color: #1e293b;
+}
+#luz-widget.abierto #luz-icono { display: none; }
+#luz-widget.abierto #luz-panel { display: block; }
+
+#luz-panel .enc {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 8px; margin-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+#luz-panel h3 { margin: 0; font-size: 13px; font-weight: 600; color: #334155; }
+#luz-cerrar {
+  background: transparent; border: none; cursor: pointer;
+  font-size: 13px; color: #64748b; padding: 4px 6px; border-radius: 6px;
+}
+#luz-cerrar:hover { background: #e2e8f0; color: #0f172a; }
+
+#luz-todas {
+  width: 100%; padding: 7px; margin-bottom: 6px;
+  background: #f1f5f9; color: #334155;
+  border: 1px solid #cbd5e1; border-radius: 8px;
+  font-size: 11px; cursor: pointer;
+}
+#luz-todas:hover { background: #e2e8f0; }
+
+#luz-panel label {
+  display: flex; align-items: center;
+  padding: 6px 4px; margin: 0;
+  border-radius: 6px;
+  font-size: 12px; color: #334155; cursor: pointer;
+}
+#luz-panel label:hover { background: #f1f5f9; }
+#luz-panel input { margin: 0 8px 0 0; accent-color: #2563eb; cursor: pointer; }
+#luz-panel .pto {
+  width: 8px; height: 8px; border-radius: 50%; margin-left: auto;
+}
+#luz-panel .sub {
+  margin: 10px 0 4px; padding-top: 8px;
+  border-top: 1px solid #e2e8f0;
+  font-size: 11px; font-weight: 600; color: #64748b;
+}
+#luz-zonas { display: flex; flex-wrap: wrap; gap: 4px; }
+#luz-zonas label { padding: 5px 8px; border: 1px solid #e2e8f0; }
+</style>
+
+<div id="luz-widget">
+  <button id="luz-icono" title="Efecto de iluminación">💡</button>
+  <div id="luz-panel">
+    <div class="enc">
+      <h3>Efecto de iluminación</h3>
+      <button id="luz-cerrar" title="Contraer">✕</button>
+    </div>
+    <button id="luz-todas">Apagar todas</button>
+    <div id="luz-lista"></div>
+    <div class="sub">Mostrar por zona</div>
+    <div id="luz-zonas"></div>
+  </div>
+</div>
+
+<script>
+window.addEventListener('load', function () {
+
+  // nombre = texto en el panel, tam = diámetro del halo (px), color = RGB
+  var config = [
+    { nombre: 'Luminarias',       capa: lyr_LUMINARIAS_6,          color: '255,215,0', tam: 46 },
+    { nombre: 'Transformadores',  capa: lyr_TRANSFORMADORENSECO_4, color: '255,0,0',   tam: 30 },
+    { nombre: 'Casetas eléctricas', capa: lyr_CASETASELECTRICAS_3, color: '80,60,255', tam: 30 },
+    { nombre: 'Postes',           capa: lyr_POSTES_5,              color: '255,140,0', tam: 22 },
+    { nombre: 'Pozos eléctricos', capa: lyr_POZOSELECTRICOS_2,     color: '255,140,0', tam: 22 }
+  ];
+
+  var lista = document.getElementById('luz-lista');
+  var zonasActivas = {};   // { '1': true, '2': true, ... }
+
+  // Lee la zona del objeto: campo "Zona" o, si no existe, el sufijo -Z# del código
+  function zonaDe(f) {
+    var z = f.get('Zona');
+    if (z === undefined || z === null || z === '') {
+      var m = /Z(\d+)\s*$/i.exec(String(f.get('Codigo') || ''));
+      z = m ? m[1] : null;
+    }
+    return z === null ? null : String(parseInt(z, 10));
+  }
+
+  config.forEach(function (c) {
+    c.activo = true;
+    c.elementos = [];
+
+    var fuente = c.capa.getSource();
+    if (fuente.getSource) { fuente = fuente.getSource(); }
+
+    // Oculta del mapa (punto, etiqueta y popup) los objetos de zonas desmarcadas
+    var estiloOriginal = c.capa.getStyle();
+    c.capa.setStyle(function (feature, resolution) {
+      if (feature._zona === undefined) { feature._zona = zonaDe(feature); }
+      var z = feature._zona;
+      if (z !== null && zonasActivas[z] === false) { return null; }
+      return (typeof estiloOriginal === 'function')
+        ? estiloOriginal(feature, resolution)
+        : estiloOriginal;
+    });
+
+    fuente.getFeatures().forEach(function (f) {
+      var zona = zonaDe(f);
+      if (zona !== null) { zonasActivas[zona] = true; }
+      var el = document.createElement('div');
+      el.className = 'halo';
+      el.style.width = el.style.height = c.tam + 'px';
+      el.style.background =
+        'radial-gradient(circle, rgba(' + c.color + ',0.85) 0%, ' +
+        'rgba(' + c.color + ',0.45) 35%, rgba(' + c.color + ',0) 70%)';
+      el.style.animationDelay = (-Math.random() * 2.4).toFixed(2) + 's';
+
+      map.addOverlay(new ol.Overlay({
+        element: el,
+        positioning: 'center-center',
+        position: f.getGeometry().getCoordinates(),
+        stopEvent: false
+      }));
+      c.elementos.push({ el: el, zona: zona });
+    });
+
+    // Un halo se ve solo si la capa está visible Y su efecto está encendido
+    c.actualizar = function () {
+      var v = c.capa.getVisible() && c.activo;
+      c.elementos.forEach(function (h) {
+        var ok = v && (h.zona === null || zonasActivas[h.zona]);
+        h.el.style.display = ok ? '' : 'none';
+      });
+    };
+    c.capa.on('change:visible', c.actualizar);
+
+    // Fila del panel
+    var label = document.createElement('label');
+    label.innerHTML =
+      '<input type="checkbox" checked>' + c.nombre +
+      '<span class="pto" style="background:rgb(' + c.color + ');box-shadow:0 0 6px rgba(' + c.color + ',0.6)"></span>';
+    c.chk = label.querySelector('input');
+    c.chk.addEventListener('change', function () {
+      c.activo = c.chk.checked;
+      c.actualizar();
+      textoBoton();
+    });
+    lista.appendChild(label);
+
+    c.actualizar();
+  });
+
+  // Casillas de zona (se crean con las zonas que existen en los datos)
+  var contZonas = document.getElementById('luz-zonas');
+  Object.keys(zonasActivas).sort(function (a, b) { return a - b; }).forEach(function (z) {
+    var lb = document.createElement('label');
+    lb.innerHTML = '<input type="checkbox" checked>Zona ' + z;
+    lb.querySelector('input').addEventListener('change', function () {
+      zonasActivas[z] = this.checked;
+      config.forEach(function (c) { c.actualizar(); c.capa.changed(); });
+    });
+    contZonas.appendChild(lb);
+  });
+
+  // Botón "Apagar todas / Encender todas"
+  var btnTodas = document.getElementById('luz-todas');
+  function textoBoton() {
+    var todas = config.every(function (c) { return c.activo; });
+    btnTodas.textContent = todas ? 'Apagar todas' : 'Encender todas';
+  }
+  btnTodas.addEventListener('click', function () {
+    var nuevo = !config.every(function (c) { return c.activo; });
+    config.forEach(function (c) {
+      c.activo = nuevo;
+      c.chk.checked = nuevo;
+      c.actualizar();
+    });
+    textoBoton();
+  });
+
+  // Abrir / contraer
+  var widget = document.getElementById('luz-widget');
+  document.getElementById('luz-icono').addEventListener('click', function () {
+    widget.classList.add('abierto');
+  });
+  document.getElementById('luz-cerrar').addEventListener('click', function () {
+    widget.classList.remove('abierto');
+  });
+
+  // Colocar el widget debajo de los botones de zoom (izquierda)
+  function colocar() {
+    var z = document.querySelector('.ol-zoom');
+    if (!z) return;
+    var m = document.getElementById('map').getBoundingClientRect();
+    widget.style.top = (z.getBoundingClientRect().bottom - m.top + 8) + 'px';
+  }
+  colocar();
+  window.addEventListener('resize', colocar);
+});
+</script>
+    </body>
+</html>
