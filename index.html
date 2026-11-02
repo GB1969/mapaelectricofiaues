@@ -167,6 +167,30 @@
 <script>
 window.addEventListener('load', function () {
 
+      // ===== Convertir Latitud/Longitud del popup a grados, minutos y segundos =====
+  function toDMS(valor, esLat) {
+    var v = parseFloat(valor);
+    var dir = esLat ? (v >= 0 ? 'N' : 'S') : (v >= 0 ? 'E' : 'W');
+    var total = Math.round(Math.abs(v) * 3600 * 100) / 100;
+    var d = Math.floor(total / 3600);
+    var m = Math.floor((total - d * 3600) / 60);
+    var s = (total - d * 3600 - m * 60).toFixed(2);
+    return d + '°' + m + "'" + s + '"' + dir;
+  }
+
+  var popupContent = document.getElementById('popup-content');
+  new MutationObserver(function () {
+    var html = popupContent.innerHTML;
+    var nuevo = html
+      .replace(/(Latitud[^0-9\-<]*(?:<[^>]*>\s*)*)(-?\d+\.\d+)/gi, function (m, pre, num) {
+        return pre + toDMS(num, true);
+      })
+      .replace(/(Longitud[^0-9\-<]*(?:<[^>]*>\s*)*)(-?\d+\.\d+)/gi, function (m, pre, num) {
+        return pre + toDMS(num, false);
+      });
+    if (nuevo !== html) popupContent.innerHTML = nuevo;
+  }).observe(popupContent, { childList: true, subtree: true });
+    
   // nombre = texto en el panel, tam = diámetro del halo (px), color = RGB
   var config = [
     { nombre: 'Luminarias',       capa: lyr_LUMINARIAS_6,          color: '255,215,0', tam: 46 },
